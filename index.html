@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- SEO Optimization -->
+    <title>FIFA World Cup 2026 matches, tables, stats and news | FIFA26.CM</title>
+    <meta name="description" content="Experience the FIFA World Cup 2026. Follow live matches, view standings for Groups A-L, analyze top player statistics, get stadium guides, and read breaking news on our premium sports hub." />
+    <meta property="og:title" content="FIFA World Cup 2026 matches, tables, stats and news" />
+    <meta property="og:description" content="Follow live matches, standings, stats, venues, and get the ultimate World Cup 2026 tournament experience." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://images.fotmob.com/image_resources/logo/leaguelogo/77.png" />
+    
+    <!-- Google Fonts Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <!-- Premium App Splash Loader -->
+    <div id="app-loader-overlay" class="loader-overlay">
+      <div class="loader-content-box">
+        <div class="loader-spinner-wrapper">
+          <div class="loader-spinner-ring"></div>
+          <img class="loader-logo-img" src="/logo.png" alt="FIFA26.CM Logo" />
+        </div>
+        <div class="loader-brand-text">FIFA26<span class="logo-accent">.CM</span></div>
+        <div class="loader-status-bar">
+          <div id="loader-progress-fill" class="loader-progress-fill"></div>
+        </div>
+        <div id="loader-status-text" class="loader-status-text">Connecting to Live Feeds...</div>
+      </div>
+    </div>
+
+    <div id="app-container">
+      
+      <!-- Premium Header -->
+      <header id="main-header" class="header-nav">
+        <div class="header-left">
+          <div id="header-brand-logo" class="brand-logo">
+            <img class="logo-image-main" src="/logo.png" alt="FIFA26.CM Logo" />
+            <span class="logo-text">FIFA26<span class="logo-accent">.CM</span></span>
+          </div>
+        </div>
+        
+        <div class="header-center">
+          <div class="search-bar-wrapper">
+            <span class="search-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="search-icon-svg">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input type="text" id="global-search-input" placeholder="Search teams..." aria-label="Search" />
+            <button id="clear-search-btn" class="clear-search-btn" style="display: none;">×</button>
+          </div>
+        </div>
+        
+        <div class="header-right">
+          <!-- Light/Dark Mode Button -->
+          <button id="theme-toggle-btn" class="control-btn" title="Toggle Theme" aria-label="Toggle dark and light theme">
+            <svg class="mode-svg-icon mode-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+            <svg class="mode-svg-icon mode-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="18.36" x2="5.64" y2="16.92"></line>
+              <line x1="18.36" y1="4.22" x2="19.78" y2="5.64"></line>
+            </svg>
+          </button>
+        </div>
+      </header>
+      <!-- Main App Content Layout Grid -->
+      <div id="main-layout" class="layout-grid">
+        
+        <!-- Left Sidebar Navigation -->
+        <aside id="sidebar-navigation" class="sidebar-left">
+          <div class="sidebar-heading">Tournament</div>
+          <nav class="nav-menu" aria-label="Main Navigation">
+            <button id="nav-tab-overview" class="nav-item" data-tab="overview">
+              <span class="nav-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34M12 2a5 5 0 0 0-5 5v5h10V7a5 5 0 0 0-5-5z"/>
+                </svg>
+              </span> Overview
+            </button>
+            <button id="nav-tab-matches" class="nav-item active" data-tab="matches">
+              <span class="nav-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </span> Matches
+            </button>
+            <button id="nav-tab-playoffs" class="nav-item" data-tab="playoffs">
+              <span class="nav-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 3h5v4M3 21h5v-4M21 12h-8M13 6v12M3 8h5v8h5"/>
+                </svg>
+              </span> Bracket
+            </button>
+            <button id="nav-tab-table" class="nav-item" data-tab="table">
+              <span class="nav-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+                </svg>
+              </span> Tables
+            </button>
+            <button id="nav-tab-stats" class="nav-item" data-tab="stats">
+              <span class="nav-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 20V10M12 20V4M6 20v-6"/>
+                </svg>
+              </span> Stats
+            </button>
+            <button id="nav-tab-teams" class="nav-item" data-tab="teams">
+              <span class="nav-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </span> Teams
+            </button>
+            <button id="nav-tab-news" class="nav-item" data-tab="news">
+              <span class="nav-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M16 8h2M16 12h2M16 16h2M6 8h6v8H6z"/>
+                </svg>
+              </span> News
+            </button>
+            <button id="nav-tab-venues" class="nav-item" data-tab="venues">
+              <span class="nav-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                </svg>
+              </span> Venues
+            </button>
+          </nav>
+          
+          <div class="sidebar-footer">
+            <p>FIFA26.CM</p>
+            <p class="copyright">Local Time: <span id="current-date-display">June 3, 2026</span></p>
+          </div>
+        </aside>
+
+        <!-- Center Main Content -->
+        <main id="content-view" class="content-area">
+          
+          <!-- TAB 1: OVERVIEW -->
+          <section id="view-overview" class="tab-view" style="display: none;">
+            <!-- Trophy Banner Header -->
+            <div class="hero-banner">
+              <div class="hero-overlay"></div>
+              <div class="hero-content">
+                <span class="badge-stage">UPCOMING TOURNAMENT</span>
+                <h1>FIFA World Cup 2026</h1>
+                <p class="hero-meta">Canada • Mexico • United States | June 11 – July 19, 2026</p>
+                <div class="countdown-container">
+                  <div class="countdown-box"><span id="cd-days">08</span><label>Days</label></div>
+                  <div class="countdown-divider">:</div>
+                  <div class="countdown-box"><span id="cd-hours">05</span><label>Hours</label></div>
+                  <div class="countdown-divider">:</div>
+                  <div class="countdown-box"><span id="cd-mins">56</span><label>Mins</label></div>
+                  <div class="countdown-divider">:</div>
+                  <div class="countdown-box"><span id="cd-secs">32</span><label>Secs</label></div>
+                </div>
+              </div>
+              <div class="hero-trophy">
+                <svg class="hero-trophy-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34M12 2a5 5 0 0 0-5 5v5h10V7a5 5 0 0 0-5-5z"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Overview Quick Stats Dashboard -->
+            <div id="overview-stats-bar" class="overview-stats-bar">
+              <!-- Dynamic quick stats card widgets will be injected here -->
+            </div>
+
+            <!-- Featured / Live Matches Segment -->
+            <div class="section-container">
+              <div class="section-header">
+                <h2>Featured Matches</h2>
+                <button class="text-link-btn" onclick="document.getElementById('nav-tab-matches').click()">View Schedule →</button>
+              </div>
+              <div class="matches-slider-container">
+                <div id="overview-matches-grid" class="matches-slider-wrapper">
+                  <!-- Matches injected here -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Overview Splitted Columns -->
+            <div class="overview-grid-split">
+              <!-- Left Column: Groups Standings Preview -->
+              <div class="card-box">
+                <div class="card-header">
+                  <h3>Groups Standings at a Glance</h3>
+                  <button class="text-link-btn" onclick="document.getElementById('nav-tab-table').click()">All Tables →</button>
+                </div>
+                <div id="overview-groups-preview" class="groups-preview-stack">
+                  <!-- Group previews injected here -->
+                </div>
+              </div>
+
+              <!-- Right Column: News and Stats Preview -->
+              <div class="overview-right-column">
+
+
+                <div class="card-box">
+                  <div class="card-header">
+                    <h3>Latest Tournament News</h3>
+                    <button class="text-link-btn" onclick="document.getElementById('nav-tab-news').click()">All News →</button>
+                  </div>
+                  <div id="overview-news-list" class="news-preview-list">
+                    <!-- News items injected here -->
+                  </div>
+                </div>
+
+                <div class="card-box">
+                  <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                      <h3 style="margin: 0;">Tournament Leaders</h3>
+                      <button id="overview-stats-view-all" class="text-link-btn" onclick="document.getElementById('nav-tab-stats').click()">View Leaderboard →</button>
+                    </div>
+                    <div class="stats-mini-tabs" style="display: flex; gap: 4px; background: var(--bg-tertiary); padding: 4px; border-radius: 8px; width: 100%;">
+                      <button id="overview-tab-goals" class="stats-mini-tab-btn active" style="flex: 1; border: none; background: none; padding: 6px 12px; font-size: 11.5px; font-weight: 800; border-radius: 6px; cursor: pointer; transition: all 0.2s;" data-leaderboard="goals">Goals</button>
+                      <button id="overview-tab-assists" class="stats-mini-tab-btn" style="flex: 1; border: none; background: none; padding: 6px 12px; font-size: 11.5px; font-weight: 800; border-radius: 6px; cursor: pointer; transition: all 0.2s;" data-leaderboard="assists">Assists</button>
+                      <button id="overview-tab-cleansheets" class="stats-mini-tab-btn" style="flex: 1; border: none; background: none; padding: 6px 12px; font-size: 11.5px; font-weight: 800; border-radius: 6px; cursor: pointer; transition: all 0.2s;" data-leaderboard="cleansheets">Clean Sheets</button>
+                    </div>
+                  </div>
+                  <div id="overview-leaderboard-list" class="scorers-preview-list" style="margin-top: 14px;">
+                    <!-- Top stats injected here dynamically -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 2: MATCHES -->
+          <section id="view-matches" class="tab-view">
+            <div class="controls-row">
+              <h2>Tournament Matches</h2>
+              <div class="filter-group">
+                <button id="filter-all-matches" class="filter-btn active">All</button>
+                <button id="filter-live-matches" class="filter-btn">Live</button>
+                <button id="filter-finished-matches" class="filter-btn">Finished</button>
+                <button id="filter-upcoming-matches" class="filter-btn">Upcoming</button>
+              </div>
+            </div>
+            
+            <div id="matches-tab-layout">
+              <!-- Stage Selectors -->
+              <div class="stage-selectors-tab">
+                <button id="selector-stage-group" class="stage-btn active">Group Stage (June 11-27)</button>
+                <button id="selector-stage-knockout" class="stage-btn">Knockouts (June 28 - July 19)</button>
+              </div>
+
+              <!-- Match List -->
+              <div id="matches-list-container" class="matches-list-wrapper">
+                <!-- Matches list group by date or rounds injected here -->
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 3: TABLES -->
+          <section id="view-table" class="tab-view" style="display: none;">
+            <div class="controls-row">
+              <h2>Group Standings</h2>
+              <div class="info-badge">Top 2 + Best 8 Third-placed teams qualify for Round of 32</div>
+            </div>
+            
+            <div class="tables-view-layout">
+              <div id="groups-tables-container" class="groups-grid-layout">
+                <!-- 12 Groups dynamically injected -->
+              </div>
+              
+              <!-- Best Third-Placed Tracker Card -->
+              <div class="card-box third-placed-card">
+                <div class="card-header">
+                  <h3>Best 3rd-Placed Teams Ranking</h3>
+                  <span class="info-tag">Top 8 Qualify</span>
+                </div>
+                <div class="table-wrapper">
+                  <table class="standings-table" id="third-placed-standings-table">
+                    <thead>
+                      <tr>
+                        <th>Pos</th>
+                        <th>Grp</th>
+                        <th class="text-left">Team</th>
+                        <th>GP</th>
+                        <th>W</th>
+                        <th>D</th>
+                        <th>L</th>
+                        <th>GF</th>
+                        <th>GA</th>
+                        <th>GD</th>
+                        <th>Pts</th>
+                      </tr>
+                    </thead>
+                    <tbody id="third-placed-standings-body">
+                      <!-- 12 3rd placed teams ranked dynamically -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 4: STATS -->
+          <section id="view-stats" class="tab-view" style="display: none;">
+            <div class="controls-row">
+              <div>
+                <h2>Tournament Stats Leaderboard</h2>
+                <p class="section-desc" style="margin-top: 4px; margin-bottom: 0;">Follow individual player stats and overall team performance.</p>
+              </div>
+              <div class="filter-group" id="stats-subtab-switcher">
+                <button class="filter-btn active" id="stats-btn-player">Player Stats</button>
+                <button class="filter-btn" id="stats-btn-team">Team Stats</button>
+              </div>
+            </div>
+
+            <!-- Player Stats Sub-view -->
+            <div id="stats-subview-player" class="stats-subview active">
+              <div class="stats-cards-grid">
+                <!-- Goals Scored Card -->
+                <div class="card-box">
+                  <div class="card-header border-bottom">
+                    <h3>Top Goals Scored</h3>
+                  </div>
+                  <div id="stats-player-goals" class="stats-leaderboard-list">
+                    <!-- Injected -->
+                  </div>
+                </div>
+
+                <!-- Assists Card -->
+                <div class="card-box">
+                  <div class="card-header border-bottom">
+                    <h3>Top Goal Assists</h3>
+                  </div>
+                  <div id="stats-player-assists" class="stats-leaderboard-list">
+                    <!-- Injected -->
+                  </div>
+                </div>
+
+                <!-- Discipline Card -->
+                <div class="card-box">
+                  <div class="card-header border-bottom">
+                    <h3>Disciplinary Cards</h3>
+                  </div>
+                  <div id="stats-player-cards" class="stats-leaderboard-list">
+                    <!-- Injected -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Team Stats Sub-view -->
+            <div id="stats-subview-team" class="stats-subview" style="display: none;">
+              <div class="stats-cards-grid">
+                <!-- Team Goals Card -->
+                <div class="card-box">
+                  <div class="card-header border-bottom">
+                    <h3>Team Goals Scored</h3>
+                  </div>
+                  <div id="stats-team-goals" class="stats-leaderboard-list">
+                    <!-- Injected -->
+                  </div>
+                </div>
+
+                <!-- Team Clean Sheets Card -->
+                <div class="card-box">
+                  <div class="card-header border-bottom">
+                    <h3>Team Clean Sheets</h3>
+                  </div>
+                  <div id="stats-team-cleansheets" class="stats-leaderboard-list">
+                    <!-- Injected -->
+                  </div>
+                </div>
+
+                <!-- Team Discipline Card -->
+                <div class="card-box">
+                  <div class="card-header border-bottom">
+                    <h3>Team Disciplinary</h3>
+                  </div>
+                  <div id="stats-team-cards" class="stats-leaderboard-list">
+                    <!-- Injected -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 5: TEAMS -->
+          <section id="view-teams" class="tab-view" style="display: none;">
+            <div class="controls-row">
+              <h2>Qualified Teams</h2>
+              <div class="confed-filter-group">
+                <button class="confed-btn active" data-confed="ALL">All Confederations</button>
+                <button class="confed-btn" data-confed="UEFA">UEFA</button>
+                <button class="confed-btn" data-confed="CONMEBOL">CONMEBOL</button>
+                <button class="confed-btn" data-confed="CONCACAF">CONCACAF</button>
+                <button class="confed-btn" data-confed="CAF">CAF</button>
+                <button class="confed-btn" data-confed="AFC">AFC</button>
+              </div>
+            </div>
+
+            <div id="teams-grid" class="teams-grid-container">
+              <!-- 48 Teams dynamically injected -->
+            </div>
+          </section>
+
+          <!-- TAB 6: NEWS -->
+          <section id="view-news" class="tab-view" style="display: none;">
+            <h2>Latest News & Analysis</h2>
+            <div id="news-grid" class="news-grid-container">
+              <!-- Injected news cards -->
+            </div>
+          </section>
+
+          <!-- TAB 7: VENUES -->
+          <section id="view-venues" class="tab-view" style="display: none;">
+            <h2>Host Stadiums</h2>
+            <p class="section-desc" style="margin-top: 8px; margin-bottom: 24px;">Tour the 16 host cities and venues across Canada, Mexico, and the United States hosting the 104 matches.</p>
+            
+            <div class="controls-row venue-controls">
+              <div class="confed-filter-group" id="venue-country-filters">
+                <button class="confed-btn active" data-country="ALL">All Countries</button>
+                <button class="confed-btn" data-country="USA">United States</button>
+                <button class="confed-btn" data-country="Canada">Canada</button>
+                <button class="confed-btn" data-country="Mexico">Mexico</button>
+              </div>
+              <div class="confed-filter-group" id="venue-sort-filters">
+                <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-secondary); margin: 0 8px; align-self: center;">Sort by:</span>
+                <button class="confed-btn active" data-sort="DESC">Capacity: High to Low</button>
+                <button class="confed-btn" data-sort="ASC">Capacity: Low to High</button>
+              </div>
+            </div>
+
+            <div id="venues-grid" class="venues-grid-container">
+              <!-- Injected stadium cards -->
+            </div>
+          </section>
+
+          <!-- TAB 8: PLAYOFF BRACKET -->
+          <section id="view-playoffs" class="tab-view" style="display: none;">
+            <div class="controls-row">
+              <h2>Playoff Bracket</h2>
+              <div class="info-badge">Knockout Stage Bracket Tracker</div>
+            </div>
+            <div id="playoffs-bracket-container" class="bracket-outer-wrapper">
+              <!-- Dynamic bracket elements or unlocking message will be injected here -->
+            </div>
+          </section>
+
+        </main>
+
+        <!-- Right Widget Sidebar (Favorites panel) -->
+        <aside id="widget-sidebar" class="sidebar-right">
+          
+          <!-- My Teams Widget -->
+          <div class="widget-card my-teams-widget">
+            <div class="widget-header">
+              <span class="icon">
+                <svg class="star-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--accent-orange);">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </span>
+              <h3>My Favorite Teams</h3>
+            </div>
+            <div id="favorite-teams-list" class="favorites-list-empty">
+              <p>Click the star icon next to any team or match to add them to your favorites for quick tracking!</p>
+            </div>
+          </div>
+
+          <!-- Live API Matches Widget -->
+          <div id="live-api-widget" class="widget-card live-api-widget" style="display: none;">
+            <div class="widget-header">
+              <span class="live-dot"></span>
+              <h3>Live Feed matches</h3>
+            </div>
+            <div id="live-api-matches-list" class="live-api-list-stack">
+              <p class="favorites-list-empty">Connecting to API feed...</p>
+            </div>
+          </div>
+
+        </aside>
+
+      </div>
+
+      <!-- Detail Drawer / Modal for Teams & Match Details -->
+      <div id="detail-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+          <button id="close-modal-btn" class="close-modal-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+          <div id="modal-body-content">
+            <!-- Dynamic detailed content (squad lists, matches, match events) injected here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Championship Celebration Modal -->
+      <div id="celebration-modal" class="modal-overlay" style="display: none;">
+        <div class="celebration-content animate-celebration">
+          <button id="close-celebration-btn" class="close-modal-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+          <div class="celebration-trophy-wrapper">
+            <svg class="celebration-trophy-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34M12 2a5 5 0 0 0-5 5v5h10V7a5 5 0 0 0-5-5z"/>
+            </svg>
+          </div>
+          <span class="celebration-subtitle">TOURNAMENT COMPLETED</span>
+          <h1 class="celebration-title">World Cup Champion!</h1>
+          <div class="celebration-winner-box">
+            <div id="celebration-winner-flag-container" class="celebration-winner-flag-wrapper"></div>
+            <span id="celebration-winner-name">TBD</span>
+          </div>
+          <p class="celebration-desc">Congratulations to the champions for a legendary tournament run!</p>
+          <button id="confirm-celebration-btn" class="sim-btn primary-sim-btn highlight-btn" style="max-width: 200px; margin: 20px auto 0 auto; width: 100%;">Awesome!</button>
+        </div>
+      </div>
+
+      <!-- Mobile Bottom Navigation Bar -->
+      <nav id="mobile-bottom-nav" class="mobile-bottom-bar" aria-label="Mobile Navigation">
+        <button class="mobile-nav-item active" data-tab="overview">
+          <span class="mobile-nav-icon">
+            <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34M12 2a5 5 0 0 0-5 5v5h10V7a5 5 0 0 0-5-5z"/>
+            </svg>
+          </span>
+          <span class="mobile-nav-label">Overview</span>
+        </button>
+        <button class="mobile-nav-item" data-tab="matches">
+          <span class="mobile-nav-icon">
+            <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </span>
+          <span class="mobile-nav-label">Matches</span>
+        </button>
+        <button class="mobile-nav-item" data-tab="playoffs">
+          <span class="mobile-nav-icon">
+            <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
+              <path d="M16 3h5v4M3 21h5v-4M21 12h-8M13 6v12M3 8h5v8h5"/>
+            </svg>
+          </span>
+          <span class="mobile-nav-label">Bracket</span>
+        </button>
+        <button class="mobile-nav-item" data-tab="table">
+          <span class="mobile-nav-icon">
+            <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+            </svg>
+          </span>
+          <span class="mobile-nav-label">Tables</span>
+        </button>
+        <button id="mobile-more-menu-btn" class="mobile-nav-item" data-tab="more">
+          <span class="mobile-nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </span>
+          <span class="mobile-nav-label">More</span>
+        </button>
+      </nav>
+
+      <!-- Mobile More Menu Overlay Drawer -->
+      <div id="mobile-more-drawer" class="mobile-drawer-overlay" style="display: none;">
+        <div class="mobile-drawer-content">
+          <div class="mobile-drawer-header">
+            <h3>More Sections</h3>
+            <button id="close-mobile-drawer-btn" class="close-modal-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="mobile-drawer-menu">
+            <button class="mobile-drawer-item" data-tab="stats">
+              <span class="drawer-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                  <path d="M18 20V10M12 20V4M6 20v-6"/>
+                </svg>
+              </span> Stats Leaderboard
+            </button>
+            <button class="mobile-drawer-item" data-tab="teams">
+              <span class="drawer-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </span> Qualified Teams
+            </button>
+            <button class="mobile-drawer-item" data-tab="news">
+              <span class="drawer-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M16 8h2M16 12h2M16 16h2M6 8h6v8H6z"/>
+                </svg>
+              </span> Latest News
+            </button>
+            <button class="mobile-drawer-item" data-tab="venues">
+              <span class="drawer-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                </svg>
+              </span> Host Stadiums
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cyberpunk Team/Match Showcase Panels -->
+      <div id="cyberpunk-showcase-left" class="cyberpunk-showcase-panel showcase-left">
+        <div class="cyberpunk-panel-header">
+          <span id="cyberpunk-home-team-name" class="cyberpunk-neon-text">HOME TEAM</span>
+          <button class="cyberpunk-close-btn" id="close-cyberpunk-left-btn">&times;</button>
+        </div>
+        <div id="cyberpunk-left-body" class="cyberpunk-panel-body">
+          <!-- Players list will be dynamically injected here -->
+        </div>
+      </div>
+      
+      <div id="cyberpunk-showcase-right" class="cyberpunk-showcase-panel showcase-right">
+        <div class="cyberpunk-panel-header">
+          <span id="cyberpunk-away-team-name" class="cyberpunk-neon-text">AWAY TEAM</span>
+          <button class="cyberpunk-close-btn" id="close-cyberpunk-right-btn">&times;</button>
+        </div>
+        <div id="cyberpunk-right-body" class="cyberpunk-panel-body">
+          <!-- Players list will be dynamically injected here -->
+        </div>
+      </div>
+    
+    <!-- Link App Scripts -->
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
