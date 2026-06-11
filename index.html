@@ -60,6 +60,10 @@
         </div>
         
         <div class="header-right">
+          <!-- Timezone Selector -->
+          <select id="timezone-selector" class="timezone-select" aria-label="Select Timezone">
+            <!-- Options populated in JS -->
+          </select>
           <!-- Light/Dark Mode Button -->
           <button id="theme-toggle-btn" class="control-btn" title="Toggle Theme" aria-label="Toggle dark and light theme">
             <svg class="mode-svg-icon mode-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -465,6 +469,13 @@
         <!-- Right Widget Sidebar (Favorites panel) -->
         <aside id="widget-sidebar" class="sidebar-right">
           
+          <div id="close-sidebar-right-btn" class="close-sidebar-right" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px;">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </div>
+
           <!-- My Teams Widget -->
           <div class="widget-card my-teams-widget">
             <div class="widget-header">
@@ -622,11 +633,24 @@
                 </svg>
               </span> Host Stadiums
             </button>
+            <button class="mobile-drawer-item" id="mobile-drawer-favs-btn">
+              <span class="drawer-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </span> Live Scores & Favourites
+            </button>
           </div>
         </div>
       </div>
 
       <!-- Cyberpunk Team/Match Showcase Panels -->
+      <!-- Mobile tab switcher (only visible on ≤480px) -->
+      <div id="cyberpunk-mobile-tabs" class="cyberpunk-mobile-tabs">
+        <button id="cb-tab-home-btn" class="cb-tab-btn active" onclick="window.setCyberpunkTab('home')">🏠 Home</button>
+        <button id="cb-tab-away-btn" class="cb-tab-btn" onclick="window.setCyberpunkTab('away')">✈️ Away</button>
+      </div>
+
       <div id="cyberpunk-showcase-left" class="cyberpunk-showcase-panel showcase-left">
         <div class="cyberpunk-panel-header">
           <span id="cyberpunk-home-team-name" class="cyberpunk-neon-text">HOME TEAM</span>

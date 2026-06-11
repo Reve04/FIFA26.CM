@@ -40,7 +40,8 @@ const state = {
     status: "disconnected",
     liveMatches: []
   },
-  overviewStatsTab: "goals"
+  overviewStatsTab: "goals",
+  timezone: localStorage.getItem("timezone") || "Asia/Kolkata",
 };
 
 const flagPlaceholderHtml = `
@@ -179,6 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Setup Event Listeners
   setupNavigation();
+  setupTimezoneSelector();
   setupThemeToggle();
   setupSearch();
   setupSimulationControls();
@@ -284,6 +286,21 @@ function setupNavigation() {
       document.getElementById("mobile-more-drawer").style.display = "none";
     });
   }
+  
+  const favsDrawerBtn = document.getElementById("mobile-drawer-favs-btn");
+  if (favsDrawerBtn) {
+    favsDrawerBtn.addEventListener("click", () => {
+      document.getElementById("mobile-more-drawer").style.display = "none";
+      document.getElementById("widget-sidebar").classList.add("active");
+    });
+  }
+
+  const closeSidebarRightBtn = document.getElementById("close-sidebar-right-btn");
+  if (closeSidebarRightBtn) {
+    closeSidebarRightBtn.addEventListener("click", () => {
+      document.getElementById("widget-sidebar").classList.remove("active");
+    });
+  }
 
   const drawerOverlay = document.getElementById("mobile-more-drawer");
   if (drawerOverlay) {
@@ -364,6 +381,48 @@ function renderActiveTab() {
       renderVenues();
       break;
   }
+}
+
+function setupTimezoneSelector() {
+  const tzSelect = document.getElementById("timezone-selector");
+  if (!tzSelect) return;
+
+  const timezones = [
+    { value: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC", label: "Local Browser Time" },
+    { value: "UTC", label: "UTC" },
+    { value: "America/New_York", label: "Eastern Time (ET)" },
+    { value: "America/Chicago", label: "Central Time (CT)" },
+    { value: "America/Denver", label: "Mountain Time (MT)" },
+    { value: "America/Los_Angeles", label: "Pacific Time (PT)" },
+    { value: "Europe/London", label: "London (GMT/BST)" },
+    { value: "Europe/Paris", label: "Central Europe (CET)" },
+    { value: "Asia/Kolkata", label: "India (IST)" },
+    { value: "Asia/Tokyo", label: "Japan (JST)" },
+    { value: "Australia/Sydney", label: "Sydney (AEST)" }
+  ];
+
+  tzSelect.innerHTML = "";
+  timezones.forEach(tz => {
+    const opt = document.createElement("option");
+    opt.value = tz.value;
+    opt.textContent = tz.label;
+    tzSelect.appendChild(opt);
+  });
+
+  if (!timezones.find(t => t.value === state.timezone)) {
+    const opt = document.createElement("option");
+    opt.value = state.timezone;
+    opt.textContent = state.timezone;
+    tzSelect.appendChild(opt);
+  }
+  tzSelect.value = state.timezone;
+
+  tzSelect.addEventListener("change", (e) => {
+    state.timezone = e.target.value;
+    localStorage.setItem("timezone", state.timezone);
+    updateLocalTime();
+    renderActiveTab();
+  });
 }
 
 // Theme Switcher (Dark/Light)
@@ -468,7 +527,8 @@ function updateLocalTime() {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    hour12: true
+    hour12: true,
+    timeZone: state.timezone
   };
   dateDisplay.textContent = now.toLocaleString('en-US', options);
 }
@@ -653,7 +713,7 @@ function renderOverview() {
   triggerScrollAnimation();
 }
 
-function getISTDateTime(dateStr, timeStr, venue) {
+function getLocalDateTime(dateStr, timeStr, venue) {
   if (!dateStr || !timeStr) {
     return { date: dateStr || "Date TBD", time: timeStr || "Time TBD" };
   }
@@ -671,26 +731,17 @@ function getISTDateTime(dateStr, timeStr, venue) {
   const hours = parseInt(timeParts[0], 10);
   const minutes = parseInt(timeParts[1], 10);
 
-  // Parse venue local time as UTC template, then adjust to actual UTC, then add 5.5 hours for IST
+  // Parse venue local time as UTC template, then adjust to actual UTC
   const localTemplateObj = new Date(Date.UTC(year, monthIndex, day, hours, minutes));
   const trueUtcTime = localTemplateObj.getTime() - (venue.utcOffset * 60 * 60 * 1000);
-  const istTime = trueUtcTime + (5.5 * 60 * 60 * 1000);
-  const istDateObj = new Date(istTime);
+  const dateObj = new Date(trueUtcTime);
 
-  const istMonth = monthNames[istDateObj.getUTCMonth()];
-  const istDay = istDateObj.getUTCDate();
-  const istYear = istDateObj.getUTCFullYear();
-  
-  const istHoursVal = istDateObj.getUTCHours();
-  const istMinsVal = istDateObj.getUTCMinutes();
-  
-  const ampm = istHoursVal >= 12 ? "PM" : "AM";
-  const displayHours = istHoursVal % 12 === 0 ? 12 : istHoursVal % 12;
-  const displayMins = String(istMinsVal).padStart(2, "0");
+  const tzOptionsDate = { month: 'long', day: 'numeric', year: 'numeric', timeZone: state.timezone };
+  const tzOptionsTime = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: state.timezone };
   
   return {
-    date: `${istMonth} ${istDay}, ${istYear}`,
-    time: `${String(displayHours).padStart(2, "0")}:${displayMins} ${ampm}`
+    date: dateObj.toLocaleDateString('en-US', tzOptionsDate),
+    time: dateObj.toLocaleTimeString('en-US', tzOptionsTime)
   };
 }
 
@@ -757,7 +808,7 @@ function createMatchCard(match, index = 0) {
   const isLive = match.status === "live";
   const isFinished = match.status === "finished";
 
-  const istDateTime = getISTDateTime(match.date, match.time, match.venue);
+  const istDateTime = getLocalDateTime(match.date, match.time, match.venue);
 
   let statusText = "";
   if (isLive) {
@@ -857,7 +908,7 @@ function renderMatches() {
   // Group matches by IST Date (e.g. "June 12, 2026")
   const grouped = {};
   matches.forEach(m => {
-    const istDateTime = getISTDateTime(m.date, m.time, m.venue);
+    const istDateTime = getLocalDateTime(m.date, m.time, m.venue);
     const dateKey = istDateTime.date;
     if (!grouped[dateKey]) grouped[dateKey] = [];
     grouped[dateKey].push(m);
@@ -2033,7 +2084,7 @@ function openTeamProfile(teamId) {
     const oppId = isHome ? m.awayTeamId : m.homeTeamId;
     const opp = TEAMS[oppId] || { name: m.placeholderHome || m.placeholderAway || "TBD" };
     const scoreText = m.score ? `${m.score.home} - ${m.score.away}` : m.time;
-    const istDateTime = getISTDateTime(m.date, m.time, m.venue);
+    const istDateTime = getLocalDateTime(m.date, m.time, m.venue);
     
     let resultBadge = "";
     if (m.status === "finished" && m.score) {
@@ -2353,7 +2404,7 @@ function openMatchDetail(match) {
   const homeScore = match.score ? match.score.home : "-";
   const awayScore = match.score ? match.score.away : "-";
 
-  const istDateTime = getISTDateTime(match.date, match.time, match.venue);
+  const istDateTime = getLocalDateTime(match.date, match.time, match.venue);
 
   // Compute team colors and gradient for the modal header card
   const colorsHome = getTeamColors(match.homeTeamId);
@@ -3063,10 +3114,19 @@ document.getElementById("detail-modal").addEventListener("click", (e) => {
 // Attach event listeners to cyberpunk panel individual close buttons
 document.getElementById("close-cyberpunk-left-btn").addEventListener("click", () => {
   document.getElementById("cyberpunk-showcase-left").classList.remove("active");
+  syncCyberpunkBodyClass();
 });
 document.getElementById("close-cyberpunk-right-btn").addEventListener("click", () => {
   document.getElementById("cyberpunk-showcase-right").classList.remove("active");
+  syncCyberpunkBodyClass();
 });
+
+// Sync body class for mobile stacking when both panels are simultaneously active
+function syncCyberpunkBodyClass() {
+  const leftActive = document.getElementById("cyberpunk-showcase-left")?.classList.contains("active");
+  const rightActive = document.getElementById("cyberpunk-showcase-right")?.classList.contains("active");
+  document.body.classList.toggle("cb-both-active", !!(leftActive && rightActive));
+}
 
 // Generate deterministic FUT stats based on player name and team rating
 function getPlayerStats(playerName, teamRating) {
@@ -3171,6 +3231,7 @@ function openCyberpunkShowcase(match) {
   } else {
     document.getElementById("cyberpunk-showcase-right").classList.remove("active");
   }
+  syncCyberpunkBodyClass();
 }
 
 // Open left panel for a single team clicked
@@ -3178,12 +3239,14 @@ function openCyberpunkSingleTeam(teamId) {
   renderCyberpunkPlayers(teamId, "cyberpunk-left-body", "cyberpunk-home-team-name", "cyberpunk-showcase-left");
   document.getElementById("cyberpunk-showcase-left").classList.add("active");
   document.getElementById("cyberpunk-showcase-right").classList.remove("active");
+  syncCyberpunkBodyClass();
 }
 
 // Close both side panels
 function closeCyberpunkPanels() {
   document.getElementById("cyberpunk-showcase-left").classList.remove("active");
   document.getElementById("cyberpunk-showcase-right").classList.remove("active");
+  syncCyberpunkBodyClass();
 }
 
 // Setup API settings event listeners (simplified background service)
@@ -3195,7 +3258,7 @@ function setupApiSettings() {
   setInterval(fetchLiveScores, 60000);
 }
 
-// Fetch live scores from the free public World Cup 2026 API
+// Fetch live scores from RapidAPI API-Football
 async function fetchLiveScores() {
   if (!state.api.enabled) {
     updateApiStatus("disconnected");
@@ -3207,12 +3270,40 @@ async function fetchLiveScores() {
   updateApiStatus("fetching");
 
   try {
-    const response = await fetch("https://worldcup26.ir/get/games");
-    if (!response.ok) throw new Error("HTTP Status " + response.status);
+    // Free plans on API-Sports do not support historical dates.
+    // If testing with Premier League (39), we will fetch ALL current live matches globally so you can see live data ticking!
+    // For the World Cup (1), we fetch today's actual matches.
+    const today = new Date().toISOString().split('T')[0];
+    const isTesting = API_CONFIG.leagueId === 39;
     
-    const data = await response.json();
-    const games = data.games || [];
+    const url = isTesting 
+      ? `https://v3.football.api-sports.io/fixtures?live=all`
+      : `https://v3.football.api-sports.io/fixtures?league=${API_CONFIG.leagueId}&season=${new Date().getFullYear()}&date=${today}`;
     
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "x-apisports-key": API_CONFIG.key
+      }
+    });
+    
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      if (!response.ok) throw new Error("HTTP Status " + response.status);
+    }
+    
+    if (!response.ok) {
+      const errMsg = data?.message || "HTTP Status " + response.status;
+      throw new Error(typeof errMsg === 'string' ? errMsg : JSON.stringify(errMsg));
+    }
+    
+    if (data.errors && Object.keys(data.errors).length > 0) {
+      throw new Error(Object.values(data.errors)[0]);
+    }
+    
+    const games = data.response || [];
     state.api.liveMatches = games;
     updateApiStatus("active");
     
@@ -3222,8 +3313,16 @@ async function fetchLiveScores() {
     // Render the live matches list in the sidebar widget
     renderLiveApiWidget();
   } catch (error) {
-    console.error("WorldCup2026 API Error:", error);
+    console.error("API-Football Error:", error);
     updateApiStatus("error", error.message);
+    
+    // Show the error in the widget so the user knows what's wrong
+    const widget = document.getElementById("live-api-widget");
+    const listContainer = document.getElementById("live-api-matches-list");
+    if (widget && listContainer) {
+      widget.style.display = "block";
+      listContainer.innerHTML = `<div style="padding: 12px; color: #ff4d4d; text-align: center; font-size: 13px;"><b>API Error:</b><br>${error.message}</div>`;
+    }
   }
 }
 
@@ -3243,6 +3342,10 @@ function updateApiStatus(status, errorMsg = "") {
     text.textContent = "Live Offline";
     dot.style.backgroundColor = "var(--text-muted)";
     indicator.style.borderColor = "var(--border-color)";
+    
+    if (status === "error" && errorMsg.includes("subscribed")) {
+      text.textContent = "Subscription Error";
+    }
   } else if (status === "fetching") {
     text.textContent = "Connecting...";
     dot.style.backgroundColor = "#eab308";
@@ -3307,62 +3410,33 @@ function findLocalTeamIdByName(apiTeamName) {
   return null;
 }
 
-// Helper to parse scorers string from the public API
-function parseApiScorers(scorersStr, teamId) {
-  if (!scorersStr || scorersStr === "null" || scorersStr.trim() === "") return [];
-  
-  return scorersStr.split(",").map(part => {
-    part = part.trim();
-    const match = part.match(/(.+?)\s+(\d+(?:\+\d+)?)\'?$/);
-    if (match) {
-      return {
-        type: "goal",
-        teamId: teamId,
-        minute: parseInt(match[2]),
-        player: match[1].trim(),
-        assist: null,
-        detail: "Goal"
-      };
-    }
-    return {
-      type: "goal",
-      teamId: teamId,
-      minute: 0,
-      player: part,
-      assist: null,
-      detail: "Goal"
-    };
-  });
-}
-
 // Process and sync API live matches with local tournament fixtures
 function processLiveMatchesFromApi(apiGames) {
   let updatedAny = false;
   
   apiGames.forEach(item => {
-    const localMatch = [...state.fixtures, ...state.knockoutFixtures].find(m => m.id.toString() === item.id.toString());
+    const localHomeId = findLocalTeamIdByName(item.teams.home.name);
+    const localAwayId = findLocalTeamIdByName(item.teams.away.name);
     
-    if (localMatch) {
-      const isLive = item.finished === "FALSE" && item.time_elapsed !== "notstarted";
-      const isFinished = item.finished === "TRUE";
+    if (localHomeId && localAwayId) {
+      const localMatch = [...state.fixtures, ...state.knockoutFixtures].find(
+        m => m.homeTeamId === localHomeId && m.awayTeamId === localAwayId
+      );
       
-      const newStatus = isFinished ? "finished" : (isLive ? "live" : "upcoming");
-      const newHomeScore = parseInt(item.home_score) || 0;
-      const newAwayScore = parseInt(item.away_score) || 0;
-      
-      if (localMatch.status !== newStatus || localMatch.score.home !== newHomeScore || localMatch.score.away !== newAwayScore) {
-        localMatch.status = newStatus;
-        localMatch.score = {
-          home: newHomeScore,
-          away: newAwayScore
-        };
+      if (localMatch) {
+        const shortStatus = item.fixture.status.short;
+        const newStatus = mapApiStatus(shortStatus);
+        const newHomeScore = item.goals.home ?? 0;
+        const newAwayScore = item.goals.away ?? 0;
         
-        // Parse scorers if any
-        const homeScorersList = parseApiScorers(item.home_scorers, localMatch.homeTeamId);
-        const awayScorersList = parseApiScorers(item.away_scorers, localMatch.awayTeamId);
-        localMatch.events = [...homeScorersList, ...awayScorersList];
-        
-        updatedAny = true;
+        if (localMatch.status !== newStatus || localMatch.score?.home !== newHomeScore || localMatch.score?.away !== newAwayScore) {
+          localMatch.status = newStatus;
+          localMatch.score = {
+            home: newHomeScore,
+            away: newAwayScore
+          };
+          updatedAny = true;
+        }
       }
     }
   });
@@ -3385,10 +3459,11 @@ function renderLiveApiWidget() {
   }
   
   // Find all games that are currently live or finished in the API
-  const activeGames = state.api.liveMatches.filter(g => g.finished === "TRUE" || (g.finished === "FALSE" && g.time_elapsed !== "notstarted"));
+  const activeGames = state.api.liveMatches.filter(g => mapApiStatus(g.fixture.status.short) !== "upcoming");
   
   if (activeGames.length === 0) {
-    widget.style.display = "none";
+    listContainer.innerHTML = '<div style="padding: 12px; color: var(--text-muted); text-align: center;">No active matches found. Check your API subscription.</div>';
+    widget.style.display = "block";
     return;
   }
   
@@ -3399,40 +3474,31 @@ function renderLiveApiWidget() {
     const row = document.createElement("div");
     row.className = "api-match-row";
     
-    const isLive = item.finished === "FALSE" && item.time_elapsed !== "notstarted";
+    const shortStatus = item.fixture.status.short;
+    const isLive = mapApiStatus(shortStatus) === "live";
     const statusText = isLive 
-      ? `<span class="api-match-status-live"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="api-live-clock-svg" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 4px; color: var(--live-color);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${item.time_elapsed}'</span>` 
-      : `<span class="api-match-status-ft">FT</span>`;
+      ? `<span class="api-match-status-live"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="api-live-clock-svg" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 4px; color: var(--live-color);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${item.fixture.status.elapsed}'</span>` 
+      : `<span class="api-match-status-ft">${shortStatus}</span>`;
       
-    const localHomeId = findLocalTeamIdByName(item.home_team_name_en);
-    const localAwayId = findLocalTeamIdByName(item.away_team_name_en);
-    
-    const homeFlagHtml = localHomeId ? `<img class="team-flag-img" src="${getTeamFlagUrl(localHomeId)}" alt="">` : flagPlaceholderHtml;
-    const awayFlagHtml = localAwayId ? `<img class="team-flag-img" src="${getTeamFlagUrl(localAwayId)}" alt="">` : flagPlaceholderHtml;
+    const homeFlagHtml = `<img class="team-flag-img" src="${item.teams.home.logo}" alt="" style="width: 16px; height: 16px; object-fit: contain;">`;
+    const awayFlagHtml = `<img class="team-flag-img" src="${item.teams.away.logo}" alt="" style="width: 16px; height: 16px; object-fit: contain;">`;
 
     row.innerHTML = `
       <div class="api-match-meta">
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="api-league-ball-svg" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 4px; opacity: 0.8; color: var(--text-secondary);"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"></path></svg> FIFA World Cup 2026</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="api-league-ball-svg" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 4px; opacity: 0.8; color: var(--text-secondary);"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"></path></svg> ${item.league.name}</span>
         ${statusText}
       </div>
       <div class="api-match-teams">
         <div class="api-match-team-row">
-          <span class="api-match-team-name">${homeFlagHtml} ${item.home_team_name_en}</span>
-          <span class="api-match-team-score">${item.home_score}</span>
+          <span class="api-match-team-name">${homeFlagHtml} ${item.teams.home.name}</span>
+          <span class="api-match-team-score">${item.goals.home ?? "-"}</span>
         </div>
         <div class="api-match-team-row">
-          <span class="api-match-team-name">${awayFlagHtml} ${item.away_team_name_en}</span>
-          <span class="api-match-team-score">${item.away_score}</span>
+          <span class="api-match-team-name">${awayFlagHtml} ${item.teams.away.name}</span>
+          <span class="api-match-team-score">${item.goals.away ?? "-"}</span>
         </div>
       </div>
     `;
-    
-    const localMatch = [...state.fixtures, ...state.knockoutFixtures].find(m => m.id.toString() === item.id.toString());
-    if (localMatch) {
-      row.addEventListener("click", () => {
-        openMatchDetail(localMatch);
-      });
-    }
     
     listContainer.appendChild(row);
   });
