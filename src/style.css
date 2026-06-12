@@ -3259,6 +3259,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* 5. Premium News Overhaul */
+#live-api-widget {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  display: none !important; /* Hidden per user request */
+}
 .news-hero-card {
   position: relative;
   background: var(--bg-secondary);

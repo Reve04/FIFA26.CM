@@ -3252,10 +3252,53 @@ function closeCyberpunkPanels() {
 // Setup API settings event listeners (simplified background service)
 function setupApiSettings() {
   if (state.api.enabled) {
-    fetchLiveScores();
+    // First fetch completed matches from the free baseline API, then start live polling
+    fetchStaticBaselineScores().then(() => fetchLiveScores());
   }
   // Poll every 60 seconds
   setInterval(fetchLiveScores, 60000);
+}
+
+// Fetch baseline completed matches from the free GitHub repository
+async function fetchStaticBaselineScores() {
+  try {
+    const res = await fetch("https://worldcup26.ir/get/games");
+    if (!res.ok) return;
+    const data = await res.json();
+    const games = data.games || [];
+    
+    let updatedAny = false;
+    games.forEach(item => {
+      const localMatch = [...state.fixtures, ...state.knockoutFixtures].find(m => m.id.toString() === item.id.toString());
+      if (localMatch) {
+        // ONLY sync fully finished matches from the static baseline!
+        // We let API-Sports handle the live/ongoing matches.
+        if (item.finished === "TRUE") {
+          const newHomeScore = parseInt(item.home_score) || 0;
+          const newAwayScore = parseInt(item.away_score) || 0;
+          
+          if (localMatch.status !== "finished" || localMatch.score?.home !== newHomeScore || localMatch.score?.away !== newAwayScore) {
+            localMatch.status = "finished";
+            localMatch.score = { home: newHomeScore, away: newAwayScore };
+            
+            // Re-use our robust scorer parser
+            const homeScorersList = parseApiScorers(item.home_scorers, localMatch.homeTeamId);
+            const awayScorersList = parseApiScorers(item.away_scorers, localMatch.awayTeamId);
+            localMatch.events = [...homeScorersList, ...awayScorersList];
+            
+            updatedAny = true;
+          }
+        }
+      }
+    });
+    
+    if (updatedAny) {
+      recalculateData();
+      renderActiveTab();
+    }
+  } catch (e) {
+    console.error("Static baseline fetch error:", e);
+  }
 }
 
 // Fetch live scores from RapidAPI API-Football
@@ -3270,16 +3313,7 @@ async function fetchLiveScores() {
   updateApiStatus("fetching");
 
   try {
-    // Free plans on API-Sports do not support historical dates.
-    // If testing with Premier League (39), we will fetch ALL current live matches globally so you can see live data ticking!
-    // For the World Cup (1), we fetch today's actual matches.
-    const today = new Date().toISOString().split('T')[0];
-    const isTesting = API_CONFIG.leagueId === 39;
-    
-    const url = isTesting 
-      ? `https://v3.football.api-sports.io/fixtures?live=all`
-      : `https://v3.football.api-sports.io/fixtures?league=${API_CONFIG.leagueId}&season=${new Date().getFullYear()}&date=${today}`;
-    
+    const url = `https://v3.football.api-sports.io/fixtures?live=all`;
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -3391,6 +3425,7 @@ function findLocalTeamIdByName(apiTeamName) {
     "saudi arabia": "KSA",
     "south africa": "RSA",
     "czech republic": "CZE",
+    "czechia": "CZE",
     "cote d'ivoire": "CIV",
     "ivory coast": "CIV",
     "scotland": "SCO",
@@ -3408,6 +3443,31 @@ function findLocalTeamIdByName(apiTeamName) {
   }
   
   return null;
+}
+
+// Parse API scorer string "Player Name 12', Player Name 45'" into event objects
+function parseApiScorers(scorerString, teamId) {
+  if (!scorerString || scorerString.trim() === "null") return [];
+  const events = [];
+  
+  // The API returns strings like "{“J. Quiñones 9'”,”R. Jiménez 67'”}"
+  // Clean out brackets and smart quotes to make it a normal comma-separated string
+  const cleanStr = scorerString.replace(/[\{\}\"“”]/g, '');
+  
+  const parts = cleanStr.split(",");
+  parts.forEach(part => {
+    const match = part.match(/(.+?)\s+(\d+)'/);
+    if (match) {
+      events.push({
+        type: "goal",
+        team: teamId,
+        player: match[1].trim(),
+        minute: parseInt(match[2]),
+        isOwnGoal: part.toLowerCase().includes("og")
+      });
+    }
+  });
+  return events;
 }
 
 // Process and sync API live matches with local tournament fixtures
@@ -3453,55 +3513,48 @@ function renderLiveApiWidget() {
   const listContainer = document.getElementById("live-api-matches-list");
   
   if (!widget || !listContainer) return;
-  if (!state.api.enabled) {
+  
+  const liveGames = state.api.liveMatches || [];
+  
+  // Smart filter: Show live matches, last 2 finished matches, and next 3 upcoming matches
+  const live = liveGames.filter(g => g.finished === "FALSE" && g.time_elapsed !== "notstarted");
+  const upcoming = liveGames.filter(g => g.finished === "FALSE" && g.time_elapsed === "notstarted").slice(0, 3);
+  const finished = liveGames.filter(g => g.finished === "TRUE").slice(-2);
+  
+  const activeGames = [...finished, ...live, ...upcoming];
+  
+  if (activeGames.length === 0) {
     widget.style.display = "none";
     return;
   }
   
-  // Find all games that are currently live or finished in the API
-  const activeGames = state.api.liveMatches.filter(g => mapApiStatus(g.fixture.status.short) !== "upcoming");
-  
-  if (activeGames.length === 0) {
-    listContainer.innerHTML = '<div style="padding: 12px; color: var(--text-muted); text-align: center;">No active matches found. Check your API subscription.</div>';
-    widget.style.display = "block";
-    return;
-  }
-  
   widget.style.display = "block";
-  listContainer.innerHTML = "";
-  
-  activeGames.forEach(item => {
-    const row = document.createElement("div");
-    row.className = "api-match-row";
+  listContainer.innerHTML = activeGames.map(game => {
+    const isLive = game.finished === "FALSE" && game.time_elapsed !== "notstarted";
+    const statusClass = isLive ? "status-live" : "status-finished";
+    const timeDisplay = isLive ? `${game.time_elapsed}'` : (game.finished === "TRUE" ? "FT" : "vs");
     
-    const shortStatus = item.fixture.status.short;
-    const isLive = mapApiStatus(shortStatus) === "live";
-    const statusText = isLive 
-      ? `<span class="api-match-status-live"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="api-live-clock-svg" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 4px; color: var(--live-color);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${item.fixture.status.elapsed}'</span>` 
-      : `<span class="api-match-status-ft">${shortStatus}</span>`;
-      
-    const homeFlagHtml = `<img class="team-flag-img" src="${item.teams.home.logo}" alt="" style="width: 16px; height: 16px; object-fit: contain;">`;
-    const awayFlagHtml = `<img class="team-flag-img" src="${item.teams.away.logo}" alt="" style="width: 16px; height: 16px; object-fit: contain;">`;
-
-    row.innerHTML = `
-      <div class="api-match-meta">
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="api-league-ball-svg" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 4px; opacity: 0.8; color: var(--text-secondary);"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"></path></svg> ${item.league.name}</span>
-        ${statusText}
-      </div>
-      <div class="api-match-teams">
-        <div class="api-match-team-row">
-          <span class="api-match-team-name">${homeFlagHtml} ${item.teams.home.name}</span>
-          <span class="api-match-team-score">${item.goals.home ?? "-"}</span>
+    // The API uses home_team_name_en and away_team_name_en
+    const homeName = game.home_team_name_en || game.home_team_en || "Home";
+    const awayName = game.away_team_name_en || game.away_team_en || "Away";
+    
+    return `
+      <div class="live-widget-match">
+        <div class="live-widget-team">
+          <img src="${getTeamFlagUrl(findLocalTeamIdByName(homeName))}" alt="">
+          <span>${homeName}</span>
         </div>
-        <div class="api-match-team-row">
-          <span class="api-match-team-name">${awayFlagHtml} ${item.teams.away.name}</span>
-          <span class="api-match-team-score">${item.goals.away ?? "-"}</span>
+        <div class="live-widget-score">
+          <span class="live-widget-time ${statusClass}">${timeDisplay}</span>
+          <span class="live-widget-goals">${game.home_score} - ${game.away_score}</span>
+        </div>
+        <div class="live-widget-team">
+          <img src="${getTeamFlagUrl(findLocalTeamIdByName(awayName))}" alt="">
+          <span>${awayName}</span>
         </div>
       </div>
     `;
-    
-    listContainer.appendChild(row);
-  });
+  }).join("");
 }
 
 // Compatibility wrapper
