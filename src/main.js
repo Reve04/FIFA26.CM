@@ -3252,56 +3252,13 @@ function closeCyberpunkPanels() {
 // Setup API settings event listeners (simplified background service)
 function setupApiSettings() {
   if (state.api.enabled) {
-    // First fetch completed matches from the free baseline API, then start live polling
-    fetchStaticBaselineScores().then(() => fetchLiveScores());
+    fetchLiveScores();
   }
   // Poll every 60 seconds
   setInterval(fetchLiveScores, 60000);
 }
 
-// Fetch baseline completed matches from the free GitHub repository
-async function fetchStaticBaselineScores() {
-  try {
-    const res = await fetch("https://worldcup26.ir/get/games");
-    if (!res.ok) return;
-    const data = await res.json();
-    const games = data.games || [];
-    
-    let updatedAny = false;
-    games.forEach(item => {
-      const localMatch = [...state.fixtures, ...state.knockoutFixtures].find(m => m.id.toString() === item.id.toString());
-      if (localMatch) {
-        // ONLY sync fully finished matches from the static baseline!
-        // We let API-Sports handle the live/ongoing matches.
-        if (item.finished === "TRUE") {
-          const newHomeScore = parseInt(item.home_score) || 0;
-          const newAwayScore = parseInt(item.away_score) || 0;
-          
-          if (localMatch.status !== "finished" || localMatch.score?.home !== newHomeScore || localMatch.score?.away !== newAwayScore) {
-            localMatch.status = "finished";
-            localMatch.score = { home: newHomeScore, away: newAwayScore };
-            
-            // Re-use our robust scorer parser
-            const homeScorersList = parseApiScorers(item.home_scorers, localMatch.homeTeamId);
-            const awayScorersList = parseApiScorers(item.away_scorers, localMatch.awayTeamId);
-            localMatch.events = [...homeScorersList, ...awayScorersList];
-            
-            updatedAny = true;
-          }
-        }
-      }
-    });
-    
-    if (updatedAny) {
-      recalculateData();
-      renderActiveTab();
-    }
-  } catch (e) {
-    console.error("Static baseline fetch error:", e);
-  }
-}
-
-// Fetch live scores from RapidAPI API-Football
+// Fetch live scores from API
 async function fetchLiveScores() {
   if (!state.api.enabled) {
     updateApiStatus("disconnected");
@@ -3313,44 +3270,78 @@ async function fetchLiveScores() {
   updateApiStatus("fetching");
 
   try {
-    const url = `https://v3.football.api-sports.io/fixtures?live=all`;
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "x-apisports-key": API_CONFIG.key
-      }
-    });
+    const res = await fetch("https://worldcup26.ir/get/games");
+    if (!res.ok) throw new Error("HTTP Status " + res.status);
+    const data = await res.json();
+    const games = data.games || [];
     
-    let data;
-    try {
-      data = await response.json();
-    } catch (e) {
-      if (!response.ok) throw new Error("HTTP Status " + response.status);
-    }
-    
-    if (!response.ok) {
-      const errMsg = data?.message || "HTTP Status " + response.status;
-      throw new Error(typeof errMsg === 'string' ? errMsg : JSON.stringify(errMsg));
-    }
-    
-    if (data.errors && Object.keys(data.errors).length > 0) {
-      throw new Error(Object.values(data.errors)[0]);
-    }
-    
-    const games = data.response || [];
     state.api.liveMatches = games;
     updateApiStatus("active");
     
-    // Parse matches to update local tournament state
-    processLiveMatchesFromApi(games);
+    let updatedAny = false;
+    games.forEach(item => {
+      let localMatch = null;
+      
+      const homeName = item.home_team_name_en || item.home_team_en;
+      const awayName = item.away_team_name_en || item.away_team_en;
+      
+      const localHomeId = findLocalTeamIdByName(homeName);
+      const localAwayId = findLocalTeamIdByName(awayName);
+      
+      if (localHomeId && localAwayId) {
+        const isGroup = item.type === "group";
+        const searchPool = isGroup ? state.fixtures : state.knockoutFixtures;
+        localMatch = searchPool.find(
+          m => (m.homeTeamId === localHomeId && m.awayTeamId === localAwayId) ||
+               (m.homeTeamId === localAwayId && m.awayTeamId === localHomeId)
+        );
+      }
+      
+      if (localMatch) {
+        const isFinished = item.finished === "TRUE";
+        const isLive = item.finished === "FALSE" && item.time_elapsed !== "notstarted";
+        const newStatus = isFinished ? "finished" : (isLive ? "live" : "upcoming");
+        
+        let apiHomeScore = parseInt(item.home_score) || 0;
+        let apiAwayScore = parseInt(item.away_score) || 0;
+        let apiHomeScorers = item.home_scorers;
+        let apiAwayScorers = item.away_scorers;
+        
+        if (localMatch.homeTeamId !== localHomeId) {
+          apiHomeScore = parseInt(item.away_score) || 0;
+          apiAwayScore = parseInt(item.home_score) || 0;
+          apiHomeScorers = item.away_scorers;
+          apiAwayScorers = item.home_scorers;
+        }
+        
+        const newHomeScore = apiHomeScore;
+        const newAwayScore = apiAwayScore;
+        
+        if (localMatch.status !== newStatus || localMatch.score?.home !== newHomeScore || localMatch.score?.away !== newAwayScore) {
+          localMatch.status = newStatus;
+          localMatch.score = { home: newHomeScore, away: newAwayScore };
+          
+          if (isFinished || isLive) {
+            const homeScorersList = parseApiScorers(apiHomeScorers, localMatch.homeTeamId);
+            const awayScorersList = parseApiScorers(apiAwayScorers, localMatch.awayTeamId);
+            localMatch.events = [...homeScorersList, ...awayScorersList];
+          }
+          
+          updatedAny = true;
+        }
+      }
+    });
     
-    // Render the live matches list in the sidebar widget
+    if (updatedAny) {
+      recalculateData();
+      renderActiveTab();
+    }
+    
     renderLiveApiWidget();
   } catch (error) {
-    console.error("API-Football Error:", error);
+    console.error("API Error:", error);
     updateApiStatus("error", error.message);
     
-    // Show the error in the widget so the user knows what's wrong
     const widget = document.getElementById("live-api-widget");
     const listContainer = document.getElementById("live-api-matches-list");
     if (widget && listContainer) {
@@ -3391,15 +3382,7 @@ function updateApiStatus(status, errorMsg = "") {
   }
 }
 
-// Map status helper (fallback/compatibility)
-function mapApiStatus(shortStatus) {
-  const liveCodes = ["1H", "2H", "HT", "ET", "P", "LIVE"];
-  const finishedCodes = ["FT", "AET", "PEN"];
-  
-  if (liveCodes.includes(shortStatus)) return "live";
-  if (finishedCodes.includes(shortStatus)) return "finished";
-  return "upcoming";
-}
+
 
 // Match live team names to our local database of 48 teams
 function findLocalTeamIdByName(apiTeamName) {
@@ -3430,7 +3413,10 @@ function findLocalTeamIdByName(apiTeamName) {
     "ivory coast": "CIV",
     "scotland": "SCO",
     "austria": "AUT",
-    "cape verde": "CPV"
+    "cape verde": "CPV",
+    "bosnia and herzegovina": "BIH",
+    "turkey": "TUR",
+    "curacao": "CUW"
   };
   
   if (mappings[nameLower]) return mappings[nameLower];
@@ -3470,42 +3456,7 @@ function parseApiScorers(scorerString, teamId) {
   return events;
 }
 
-// Process and sync API live matches with local tournament fixtures
-function processLiveMatchesFromApi(apiGames) {
-  let updatedAny = false;
-  
-  apiGames.forEach(item => {
-    const localHomeId = findLocalTeamIdByName(item.teams.home.name);
-    const localAwayId = findLocalTeamIdByName(item.teams.away.name);
-    
-    if (localHomeId && localAwayId) {
-      const localMatch = [...state.fixtures, ...state.knockoutFixtures].find(
-        m => m.homeTeamId === localHomeId && m.awayTeamId === localAwayId
-      );
-      
-      if (localMatch) {
-        const shortStatus = item.fixture.status.short;
-        const newStatus = mapApiStatus(shortStatus);
-        const newHomeScore = item.goals.home ?? 0;
-        const newAwayScore = item.goals.away ?? 0;
-        
-        if (localMatch.status !== newStatus || localMatch.score?.home !== newHomeScore || localMatch.score?.away !== newAwayScore) {
-          localMatch.status = newStatus;
-          localMatch.score = {
-            home: newHomeScore,
-            away: newAwayScore
-          };
-          updatedAny = true;
-        }
-      }
-    }
-  });
-  
-  if (updatedAny) {
-    recalculateData();
-    renderActiveTab();
-  }
-}
+
 
 // Render the live API matches list inside the sidebar widget
 function renderLiveApiWidget() {
